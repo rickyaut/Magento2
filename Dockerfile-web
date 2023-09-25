@@ -1,0 +1,29 @@
+FROM php:8.2-apache
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN apt-get update
+RUN apt-get install -y wget unzip curl less net-tools iputils-ping apt-transport-https ca-certificates gnupg2
+RUN curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions
+RUN install-php-extensions bcmath intl gd zip pdo_mysql soap xsl sockets
+
+RUN a2enmod rewrite
+
+RUN mkdir /root/.composer
+COPY auth.json /root/.composer/auth.json
+COPY php.ini /usr/local/etc/php/php.ini
+WORKDIR /var/www
+RUN wget https://getcomposer.org/download/latest-stable/composer.phar
+RUN /usr/local/bin/php composer.phar create-project --repository=https://repo.magento.com/ magento/project-community-edition magento2
+WORKDIR /var/www/magento2
+COPY auth.json var/composer_home/
+RUN chown -R www-data:www-data /var/www/magento2
+USER www-data
+RUN /usr/local/bin/php ../composer.phar install
+RUN bin/magento module:enable --all
+RUN bin/magento setup:di:compile
+# RUN echo test1
+# COPY init-magento.sh /var/www/magento2/bin/init-magento.sh 
