@@ -7,10 +7,13 @@ services:
       - TZ=Australia/Melbourne
     ports:
       - '80:80'
+      - '443:443'
     volumes:
       - ~/workspace/docker/Magento/magento2.conf:/etc/apache2/sites-enabled/magento2.conf
+      - ~/workspace/docker/Magento/magento2-ssl.conf:/etc/apache2/sites-enabled/magento2-ssl.conf
+      - ~/workspace/docker/Magento/certificate.crt:/etc/apache2/sites-enabled/magento2.crt
+      - ~/workspace/docker/Magento/certificate.pem:/etc/apache2/sites-enabled/magento2.pem
       - ~/workspace/docker/Magento/auth.json:/root/.composer/auth.json
-      - ~/workspace/docker/Magento/install-magento.sh:/var/www/magento2/bin/install-magento.sh
     depends_on:
       - db
       - elasticsearch

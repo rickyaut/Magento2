@@ -10,7 +10,8 @@ RUN curl -sSLf \
     chmod +x /usr/local/bin/install-php-extensions
 RUN install-php-extensions bcmath intl gd zip pdo_mysql soap xsl sockets
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite && a2enmod ssl
+
 
 RUN mkdir /root/.composer
 COPY auth.json /root/.composer/auth.json
@@ -25,5 +26,6 @@ USER www-data
 RUN /usr/local/bin/php ../composer.phar install
 RUN bin/magento module:enable --all
 RUN bin/magento setup:di:compile
+RUN bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth 
+RUN bin/magento module:disable Magento_TwoFactorAuth
 # RUN echo test1
-# COPY init-magento.sh /var/www/magento2/bin/init-magento.sh 
